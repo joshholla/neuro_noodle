@@ -60,3 +60,9 @@ target/
 
 # Resource files
 Resources/
+
+# settings.json file for comet logging
+settings.json
+
+# Projectile file
+.projectile

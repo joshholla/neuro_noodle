@@ -1,6 +1,3 @@
-"""
-This file contains my NN models
-"""
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -84,7 +81,8 @@ class Autoencoder(torch.nn.Module):
     def decode(self):
         # Generate image from the decoder.
 
-    def save_json(self):
+    # TODO - this might be redundant.
+    def save_model(self):
         # Log the model Parameters
         # ------------------------------------------------------------------------------
         model_params = {

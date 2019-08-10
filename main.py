@@ -4,30 +4,23 @@ import torch.nn as nn
 import torch.nn.functional as F
 import argparse
 import os
-import utils
+from utils import *
 import json
 import tqdm
 import ipdb
 from tqdm import tqdm
 from comet_ml import Experiment
+from model import *
+from train import *
 
 use_cuda = torch.cuda.is_available()
 
-
-# train is Icky, and needs implementation: TODO
-
-# def train(data_set, epochs=EPOCHS, batch_size=BATCH_SIZE):
-#     loss_func = torch.nn.BCELoss() # USE THIS LOSS!!
-#     for epoch in tqdm(range(epochs)):
-#         for ii, batch_raw in enumerate(tqdm(data_loader)):
-#             optim.zero_grad()
-
+# ------------------------------------------------------------------------------
 # ADD ASSERTS AND TESTING TOO!
-
 # ------------------------------------------------------------------------------
 
 if __name__ = "__main__":
-    """Where the command line magic happens"""
+    # Where the command line magic happens
     # ------------------------------------------------------------------------------
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action='store_true', default=False, help='to prevent logging (even to disk), when debugging.')
@@ -64,25 +57,18 @@ if __name__ = "__main__":
 
     # Training here:
     # ------------------------------------------------------------------------------
-    model = Autoencoder()
+    model, optim = get_model()
     if use_cuda:
         model.cuda()
-
-    optim = Adam(model.parameters(), lr = 0.001)
-
     data = _dataloader()
-    train(data_set=data)
-    model.save_json() # Log to disk and to comet.
+    epoch = train(model, data) # Gotta return epoch and stuff at the end?
+    model.save_session(model, optim, epoch) # Log to disk and to comet.
 
 
     # TODO: I might want to sample the data at some point, and physically look
     # at what I'm seeing. Write something for that. Call intermittently.
-    # Write this in utils, for logging.
-
-    # if args.comet:
-    #     args.experiment.log_metric("Blah", metric, step=time_step)
 
 
-
-
-    # So Long, and Thanks for All the Fish!
+    # ------------------------------------------------------------------------------
+    # So Long, and Thanks for All the Fish!   >< ((('>
+    # ------------------------------------------------------------------------------

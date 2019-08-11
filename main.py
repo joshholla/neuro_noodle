@@ -27,6 +27,8 @@ if __name__ = "__main__":
     parser.add_argument("--comet", action='store_true', default=False, help='to use https://www.comet.ml/joshholla for logging')
     parser.add_argument("--use_logger",action='store_true',default=False,help='to log or not to log (that is the question)')
     parser.add_argument('--namestr',type=str,default='neuro_ml',help='additional info in output filename to describe experiments')
+    parser.add_argument('--load_dir',type=str,default=None,help='use existing model, send local path to saved model')
+    parser.add_argument('--save_dir',type=str,default='weights/',help='directory for saving session')
 
     args = parser.parse_args()
 
@@ -61,6 +63,11 @@ if __name__ = "__main__":
     if use_cuda:
         model.cuda()
     data = _dataloader()
+
+    # load trained model if necessary
+    if args.load_dir is not None:
+        model, optim, start_epoch = load_session(model, optim, args)
+
     epoch = train(model, data) # Gotta return epoch and stuff at the end?
     model.save_session(model, optim, epoch) # Log to disk and to comet.
 

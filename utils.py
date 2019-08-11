@@ -1,63 +1,69 @@
+import os
 import numpy as np
 import torch
 import torchvision
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
+from torchvision.transforms import ToPILImage
 
-def _dataloader(DATA_PATH):     # TODO
+DATA_PATH = 'Resources/stimuli/'
+BATCH_SIZE=24
+
+def _dataloader(data_path):
     #This is where I load my dataset, and return something that my model can use
     # ------------------------------------------------------------------------------
-
-    data_path = 'Resources/stimuli/'
     train_dataset = torchvision.datasets.ImageFolder(root=data_path, transform=torchvision.transforms.ToTensor())
+    augmented_dataset = _augment(train_dataset)
 
-    training, validation = _split(train_dataset)
-
+    training, validation = _split(augmented_dataset)
     return training, validation
 
+def _augment(data):
+    # Not Implemented TODO
+    return data
 
-def _split(all_data):    # TODO
-    # Split the dataset into a training and validation dataset
-    validation = all_data # Some random selection of this.
-    training = all_data - validation
+def _split(train_dataset,
+           batch_size=BATCH_SIZE,
+           num_workers=0,
+           valid_size=0.1,
+           sampler=SubsetRandomSampler):
+    num_train=len(train_dataset)
+    indices= list (range(num_train))
+    np.random.shuffle(indices)
+    split = int(np.floor(valid_size * num_train))
+
+    train_idx, valid_idx = indices[split:], indices[:split]
+    train_sampler = sampler(train_idx)
+    valid_sampler = sampler(valid_idx)
+
+    training = DataLoader(train_dataset, batch_size=batch_size, sampler=train_sampler, num_workers=num_workers)
+    validation = DataLoader(train_dataset, batch_size=batch_size, sampler=valid_sampler, num_workers=num_workers)
+
+    return training,validation
 
 
-    # train_loader = torch.utils.data.DataLoader(
-    #     train_dataset,
-    #     batch_size=64,
-    #     num_workers=0,
-    #     shuffle=True
-    # )
+def get_image(x):
+    output = ToPILImage()
+    return output(x)
 
-    return training, validation
+# Future TODO:
+# One more thing I could do is normalize the data, and check for the mean and
+# SD. Get to it later if I can. Would be a good analysis of the dataset.
 
+# https://gist.github.com/andrewjong/6b02ff237533b3b2c554701fb53d5c4d
+# https://discuss.pytorch.org/t/dataloader-filenames-in-each-batch/4212/4?u=ajong
+# In case I want to save the image names in the face, and train a classifier for
+# funsies.
 
 # ------------------------------------------------------------------------------
-# # loading / dataset preprocessing
-# tf = transforms.Compose([transforms.ToTensor(),
-#                          lambda x: x + torch.zeros_like(x).uniform_(0., 1./args.n_bins)])
-
-# train_loader = torch.utils.data.DataLoader(datasets.CIFAR10(args.data_dir, train=True,
-#     download=True, transform=tf), batch_size=args.batch_size, shuffle=True, num_workers=10, drop_last=True)
-
-# test_loader  = torch.utils.data.DataLoader(datasets.CIFAR10(args.data_dir, train=False,
-#     transform=tf), batch_size=args.batch_size, shuffle=False, num_workers=10, drop_last=True)
-
 # # construct model and ship to GPU
 # model = Glow_((args.batch_size, 3, 32, 32), args).cuda()
 # print(model)
 # print("number of model parameters:", sum([np.prod(p.size()) for p in model.parameters()]))
-
 # ------------------------------------------------------------------------------
 
-
-# # load trained model if necessary (must be done after DataParallel)
-# if args.load_dir is not None:
-#     model, optim, start_epoch = load_session(model, optim, args)
-
 # ------------------------------------------------------------------------------
-
 
 
 # ------------------------------------------------------------------------------
@@ -86,7 +92,7 @@ def load_session(model, optim, args):
         optim.load_state_dict(torch.load(os.path.join(args.load_dir, 'optim.pth')))
         print('Successfully loaded model')
     except Exception as e:
-        pdb.set_trace()
+        ipdb.set_trace()
         print('Could not restore session properly')
 
     return model, optim, start_epoch

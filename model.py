@@ -54,15 +54,3 @@ class Autoencoder(torch.nn.Module):
         # Generate image from the decoder.
         x = self.decoder(x)
         return x
-
-    # # TODO - this might be redundant.
-    # def save_model(self):
-    #     # Log the model Parameters
-    #     # ------------------------------------------------------------------------------
-    #     model_params = {
-    #         # TODO - create json logs here!
-    #     }
-    #     json_params = json.dumps(model_params)
-    #     text_file = open("model_params.json", "w")
-    #     text_file.write(json_params)
-    #     text_file.close()

@@ -28,6 +28,11 @@ def loss_batch(model, loss_function, image, optim=None):
 
     return loss.item()
 
+def show_image(model, image):
+    reconstruct = model(image)
+    if args.comet:
+        args.experiment.log_image(get_image(reconstruct), name= epoch)
+
 
 def fit (model, training_data, validation_data, optim, start_epoch, args):
     loss = torch.nn.BCELoss()
@@ -48,6 +53,7 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
                 for picture in validation_data:
                     net_loss += loss_batch(model, loss, picture)
                     total += 1
+                    image = picture
 
             validation_loss = np.sum(np.multiply(net_loss, total)) / total
 
@@ -55,6 +61,9 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
                 print(epoch, validation_loss)
                 if args.comet:
                     args.experiment.log_metric("Validation Loss", validation_loss, step= epoch)
+
+                # also sample data and see what the reconstruction looks like
+                show_image(model, image)
 
         if ((epoch+1) % args.save_every == 0):
             model.save_session(model, optim, epoch)

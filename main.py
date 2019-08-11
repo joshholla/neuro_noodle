@@ -86,10 +86,6 @@ if __name__ = "__main__":
         start_epoch = 0
 
     fit(model, training_loader, validation_loader, optim, start_epoch, args)
-    # TODO: I might want to sample the data at some point, and physically look
-    # at what I'm seeing. Write something for that. Call intermittently.
-
-
     args.experiment.end()
 
 

@@ -46,6 +46,7 @@ def get_image(x):
     output = ToPILImage()
     return output(x)
 
+# ------------------------------------------------------------------------------
 # Future TODO:
 # One more thing I could do is normalize the data, and check for the mean and
 # SD. Get to it later if I can. Would be a good analysis of the dataset.
@@ -54,14 +55,6 @@ def get_image(x):
 # https://discuss.pytorch.org/t/dataloader-filenames-in-each-batch/4212/4?u=ajong
 # In case I want to save the image names in the face, and train a classifier for
 # funsies.
-
-# ------------------------------------------------------------------------------
-# # construct model and ship to GPU
-# model = Glow_((args.batch_size, 3, 32, 32), args).cuda()
-# print(model)
-# print("number of model parameters:", sum([np.prod(p.size()) for p in model.parameters()]))
-# ------------------------------------------------------------------------------
-
 # ------------------------------------------------------------------------------
 
 

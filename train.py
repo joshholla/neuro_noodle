@@ -6,7 +6,7 @@ from torch.optim import lr_scheduler
 from torchvision import datasets, transforms, utils
 
 import numpy as np
-import pdb
+import ipdb
 import argparse
 import time
 
@@ -15,57 +15,49 @@ from utils import *
 
 def get_model():
     model = Autoencoder()
-    return model, optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    return model, optimizer
 
-
-EPOCHS = 50
-BATCH_SIZE = 32
-
-
-def loss_batch(model, loss_function, image, opt=None):
-    loss = loss_function(model(image), image) # we want to get the images
-    # reconstructed when we come back out of the autoencoder.
-
-    # so that we don't train on validation data (don't pass optimizer for
-    # validation set:
-    if opt is not None:
+def loss_batch(model, loss_function, image, optim=None):
+    loss = loss_function(model(image), image)
+    # so that we don't train on validation data
+    if optim is not None:
         loss.backward()
-        opt.step
-        opt.zero_grad()
+        optim.step
+        optim.zero_grad()
 
-    return loss.item() # What am I returning here?
+    return loss.item()
 
 
-# training loop
-# ------------------------------------------------------------------------------
-
-def fit (model, data, epochs=EPOCHS, batch_size= BATCH_SIZE, training_data, validation_data, optim):
+def fit (model, training_data, validation_data, optim, start_epoch, args):
     loss = torch.nn.BCELoss()
-    for epoch in tqdm(range(epochs)):
+    for epoch in tqdm(range(start_epoch, start_epoch+args.n_epochs)):
+        # training loop
+        # ------------------------------------------------------------------------------
         model.train()
         for picture in training_data:
             loss_batch(model, loss, picture, optim)
-        # do batches and save model after every 5 epochs
 
         # test loop
         # --------------------------------------------------------------------------
+        if ( (epoch+1) % args.test_every == 0 ):
+            model.eval()
+            total=0
+            net_loss=0.0
+            with torch.no_grad():
+                for picture in validation_data:
+                    net_loss += loss_batch(model, loss, picture)
+                    total += 1
 
-        model.eval()
-        total=0
-        net_loss=0.0
-        with torch.no_grad():
-            for picture in validation_data:
-                net_loss += loss_batch(model, loss, picture)
-                total += 1
+            validation_loss = np.sum(np.multiply(net_loss, total)) / total
 
-        validation_loss = np.sum(np.multiply(net_loss, total)) / total
-        # with torch.no_grad():
-        #     losses, nums = zip(
-        #         *[loss_batch(model, loss, x, y) for x, y in validation_data]
-        #     )
-        # validation_loss = np.sum(np.multiply(losses, nums)) / np.sum(nums)
-        print(epoch, validation_loss)
-        #TODO log to Comet as well.
+            if ((epoch+1) % args.log_every == 0 ):
+                print(epoch, validation_loss)
+                if args.comet:
+                    args.experiment.log_metric("Validation Loss", validation_loss, step= epoch)
 
-        if (epoch % 10 == 0 || epoch = EPOCHS - 1 ):
-            # Save model locally and on comet.
+        if ((epoch+1) % args.save_every == 0):
+            model.save_session(model, optim, epoch)
+
+        last_epoch = epoch
+    model.save_session(model, optim, last_epoch)

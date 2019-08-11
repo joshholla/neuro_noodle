@@ -7,8 +7,6 @@ from torchvision import transforms, utils
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
-DATA_PATH = 'Resources/stimuli/'
-BATCH_SIZE=24
 
 def _dataloader(data_path):
     #This is where I load my dataset, and return something that my model can use
@@ -24,10 +22,11 @@ def _augment(data):
     return data
 
 def _split(train_dataset,
-           batch_size=BATCH_SIZE,
            num_workers=0,
            valid_size=0.1,
-           sampler=SubsetRandomSampler):
+           sampler=SubsetRandomSampler,
+           args):
+    batch_size = args.batch_size
     num_train=len(train_dataset)
     indices= list (range(num_train))
     np.random.shuffle(indices)
@@ -71,7 +70,8 @@ def get_image(x):
 # ------------------------------------------------------------------------------
 
 def save_session(model, optim, args, epoch):
-    path = os.path.join(args.save_dir, str(epoch))
+    path = os.path.join(args.save_dir, str(epoch)) # appending epoch number to
+    # the file, so I know what epoch the saved weights are from.
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -80,9 +80,10 @@ def save_session(model, optim, args, epoch):
     torch.save(optim.state_dict(), os.path.join(path, 'optim.pth'))
     print('Successfully saved model')
 
-    # if args.comet:
-    #     args.experiment.log_metric("Blah", metric, step=time_step)
-
+    #save to Comet Asset Tab
+    if args.comet:
+        args.experiment.log_asset(file_path= os.path.join(path, 'model.pth'), file_name='autoencoder_model.pth' )
+        args.experiment.log_asset(file_path= os.path.join(path, 'optim.pth'), file_name='autoencoder_optim.pth' )
 
 
 def load_session(model, optim, args):

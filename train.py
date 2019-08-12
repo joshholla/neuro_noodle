@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 
 from model import *
-from utils import *
+from utils import save_session, get_image
 
 def get_model():
     model = Autoencoder()
@@ -29,7 +29,7 @@ def loss_batch(model, loss_function, image, optim=None):
 
     return loss.item()
 
-def show_image(model, image):
+def show_image(model, image, args):
     reconstruct = model(image)
     if args.comet:
         args.experiment.log_image(get_image(reconstruct), name= epoch)
@@ -46,35 +46,43 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
                 picture = picture.view(picture.size(0), -1)
                 if use_cuda:
                     picture = picture.cuda()
-                loss_batch(model, loss, picture, optim)
+                training_loss = loss_batch(model, loss, picture, optim)
+                if args.comet:
+                    args.experiment.log_metric("Training Loss", training_loss)
 
         # test loop
         # --------------------------------------------------------------------------
         if ( (epoch+1) % args.test_every == 0 ):
             model.eval()
-            total=0
-            net_loss=0.0
+            # total=0
+            # net_loss=0.0
             with torch.no_grad():
                 for data, _  in validation_data:
                     for _, picture in enumerate(data):
+                        picture = picture.view(picture.size(0), -1)
                         if use_cuda:
                             picture = picture.cuda()
-                        net_loss += loss_batch(model, loss, picture)
-                        total += 1
+                        val_loss = loss_batch(model, loss, picture)
+                        if args.comet:
+                            args.experiment.log_metric("Validation Loss", val_loss, step=epoch)
+                        # total += 1
                         image = picture
 
-            validation_loss = np.sum(np.multiply(net_loss, total)) / total
+            # validation_loss = np.sum(np.multiply(net_loss, total)) / total
 
-            if ((epoch+1) % args.log_every == 0 ):
-                print(epoch, validation_loss)
-                if args.comet:
-                    args.experiment.log_metric("Validation Loss", validation_loss, step= epoch)
+            # if ((epoch+1) % args.log_every == 0 ):
+            #     #print(epoch, validation_loss)
+            #     if args.comet:
+            #         args.experiment.log_metric("Validation Loss", validation_loss, step= epoch)
 
-                # also sample data and see what the reconstruction looks like
-                show_image(model, image)
+            #     # also sample data and see what the reconstruction looks like
+            #     show_image(model, image)
+
+
+            # show_image(model, image, args)
 
         if ((epoch+1) % args.save_every == 0):
-            model.save_session(model, optim, epoch)
+            save_session(model, optim, args,  epoch)
 
         last_epoch = epoch
-    model.save_session(model, optim, last_epoch)
+    save_session(model, optim, args, last_epoch)

@@ -42,6 +42,7 @@ def _split(train_dataset,args,
 
 
 def get_image(x):
+    x.detatch().numpy()
     output = ToPILImage()
     return output(x)
 
@@ -74,8 +75,8 @@ def save_session(model, optim, args, epoch):
 
     #save to Comet Asset Tab
     if args.comet:
-        args.experiment.log_asset(file_path= os.path.join(path, 'model.pth'), file_name='autoencoder_model.pth' )
-        args.experiment.log_asset(file_path= os.path.join(path, 'optim.pth'), file_name='autoencoder_optim.pth' )
+        args.experiment.log_asset(file_data= args.save_dir+'/'+str(epoch)+'/' +'model.pth', file_name='autoencoder_model.pth' )
+        args.experiment.log_asset(file_data= args.save_dir+'/'+str(epoch)+'/' +'optim.pth', file_name='autoencoder_optim.pth' )
 
 
 def load_session(model, optim, args):

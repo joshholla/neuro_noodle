@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_epochs',type=int, default=2000, help='number of epochs to run for' )
 
     parser.add_argument('--test_every',type=int, default=200, help='test every _ epochs' )
-    parser.add_argument('--save_every',type=int, default=500, help='save every _ epochs' )
+    parser.add_argument('--save_every',type=int, default=1000, help='save every _ epochs' )
     parser.add_argument('--log_every',type=int, default=5, help='log every _ epochs' )
 
 

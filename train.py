@@ -7,8 +7,9 @@ from torchvision import datasets, transforms, utils
 
 import numpy as np
 import ipdb
-import argparse
-import time
+import tqdm
+from tqdm import tqdm
+
 
 from model import *
 from utils import *
@@ -40,7 +41,9 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
         # training loop
         # ------------------------------------------------------------------------------
         model.train()
-        for picture in training_data:
+        for picture, _ in training_data:
+            if use_cuda:
+                picture = picture.cuda()
             loss_batch(model, loss, picture, optim)
 
         # test loop
@@ -51,6 +54,9 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
             net_loss=0.0
             with torch.no_grad():
                 for picture in validation_data:
+                    if use_cuda:
+                        picture = picture.cuda()
+
                     net_loss += loss_batch(model, loss, picture)
                     total += 1
                     image = picture

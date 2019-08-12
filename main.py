@@ -1,3 +1,5 @@
+from comet_ml import Experiment
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,9 +12,8 @@ import json
 import tqdm
 from tqdm import tqdm
 import ipdb
-from comet_ml import Experiment
 
-from utils import *
+from utils import _dataloader, get_image
 from model import *
 from train import *
 
@@ -22,7 +23,7 @@ use_cuda = torch.cuda.is_available()
 # ADD ASSERTS AND TESTING TOO!
 # ------------------------------------------------------------------------------
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     # Where the command line magic happens
     # ------------------------------------------------------------------------------
     parser = argparse.ArgumentParser()
@@ -77,7 +78,7 @@ if __name__ = "__main__":
     if use_cuda:
         model.cuda()
 
-    data = _dataloader(args.data_dir)
+    training_loader, validation_loader = _dataloader(args)
 
     # load trained model if necessary
     if args.load_dir is not None:

@@ -6,45 +6,43 @@ use_cuda = torch.cuda.is_available()
 
 class Autoencoder(torch.nn.Module):
     # The AutoEncoder Model
-    def __init__(self,encoder=Encoder(),decoder=Decoder(),
-                 data_dim=506 * 650,
-                 #channel_dim= 500 * 500,
-                 num_channels = 500,
-                 embed_dim=20):
+    def __init__(self):
         super(Autoencoder,self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(input_dim, num_channels, 3, 1, 1),
-            nn.BatchNorm2d(num_channels),
+            nn.Conv2d(3,1,3),
             nn.ReLU(inplace=True),
-            nn.Conv2d(num_channels, num_channels, 3, 1, 1),
-            nn.BatchNorm2d(num_channels),
+            nn.Linear(506 * 650, 256),
             nn.ReLU(inplace=True),
-            nn.Conv2d(num_channels, num_channels, 3, 2, 1),
-            nn.BatchNorm2d(num_channels),
+            nn.Conv2d(1, 25, 3),
+            nn.BatchNorm2d(25),
             nn.ReLU(inplace=True),
-            nn.Conv2d(num_channels, latent_dim , 3, 1, 0),
-            nn.BatchNorm2d(latent_dim)
+            nn.Conv2d(25, 50, 3),
+            nn.BatchNorm2d(50),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(50, 1, 3),
+            nn.BatchNorm2d(50),
+            nn.Linear(256, 40), # check if it is 256, or something else
+            nn.ReLU(inplace=True)
         )
 
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(latent_dim, num_channels , 3, 1, 0),
-            nn.BatchNorm2d( num_channels),
+            nn.Linear(40, 256),
+            nn.ConvTranspose2d(1, 25, 3),
+            nn.BatchNorm2d(25),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(num_channels, num_channels, 5, 1, 0),
-            nn.BatchNorm2d(num_channels),
+            nn.ConvTranspose2d(25, 50, 3),
+            nn.BatchNorm2d(50),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(num_channels, num_channels , 4, 2, 1),
-            nn.BatchNorm2d(num_channels),
+            nn.Conv2d(50, 1 , 3),
+            nn.BatchNorm2d(1),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(num_channels, output_dim, 4, 2, 1),
-            nn.Tanh()
+            nn.Linear(256, 506 * 650),
+            nn.ReLU(inplace=True)
         )
-
 
     def forward(self, x):
         x = self.encoder(x)
         return self.decoder(x)
-
 
     def encode(self, x):
         x = self.encoder(x)

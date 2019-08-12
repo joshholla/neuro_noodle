@@ -8,24 +8,23 @@ import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
 
-def _dataloader(data_path):
+def _dataloader(args):
     #This is where I load my dataset, and return something that my model can use
     # ------------------------------------------------------------------------------
-    train_dataset = torchvision.datasets.ImageFolder(root=data_path, transform=torchvision.transforms.ToTensor())
+    train_dataset = torchvision.datasets.ImageFolder(root=args.data_dir, transform=torchvision.transforms.ToTensor())
     augmented_dataset = _augment(train_dataset)
 
-    training, validation = _split(augmented_dataset)
+    training, validation = _split(augmented_dataset, args)
     return training, validation
 
 def _augment(data):
     # Not Implemented TODO
     return data
 
-def _split(train_dataset,
+def _split(train_dataset,args,
            num_workers=0,
            valid_size=0.1,
-           sampler=SubsetRandomSampler,
-           args):
+           sampler=torch.utils.data.sampler.SubsetRandomSampler):
     batch_size = args.batch_size
     num_train=len(train_dataset)
     indices= list (range(num_train))
@@ -59,7 +58,7 @@ def get_image(x):
 
 
 # ------------------------------------------------------------------------------
-# Logging  TODO
+# Logging
 # ------------------------------------------------------------------------------
 
 def save_session(model, optim, args, epoch):

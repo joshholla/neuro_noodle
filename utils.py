@@ -89,3 +89,10 @@ def load_session(model, optim, args):
         print('Could not restore session properly')
 
     return model, optim, start_epoch
+
+
+def make_classification_dataset():
+    training = 'herp'
+    validation = 'derp'
+    return training, validation
+# Maybe this should be a separate branch?

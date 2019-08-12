@@ -7,9 +7,6 @@ from torchvision import transforms, utils
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
-
-
-
 def _dataloader(args):
     #This is where I load my dataset, and return something that my model can use
     # ------------------------------------------------------------------------------

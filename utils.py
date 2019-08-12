@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
 
+
+
 def _dataloader(args):
     #This is where I load my dataset, and return something that my model can use
     # ------------------------------------------------------------------------------
@@ -89,10 +91,3 @@ def load_session(model, optim, args):
         print('Could not restore session properly')
 
     return model, optim, start_epoch
-
-
-def make_classification_dataset():
-    training = 'herp'
-    validation = 'derp'
-    return training, validation
-# Maybe this should be a separate branch?

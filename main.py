@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument('--log_every',type=int, default=5, help='log every _ epochs' )
 
 
+
     args = parser.parse_args()
 
     if args.debug:

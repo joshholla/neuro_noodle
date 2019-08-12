@@ -41,10 +41,12 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
         # training loop
         # ------------------------------------------------------------------------------
         model.train()
-        for picture, _ in training_data:
-            if use_cuda:
-                picture = picture.cuda()
-            loss_batch(model, loss, picture, optim)
+        for data, _ in training_data:
+            for _, picture in enumerate(data):
+                picture = picture.view(picture.size(0), -1)
+                if use_cuda:
+                    picture = picture.cuda()
+                loss_batch(model, loss, picture, optim)
 
         # test loop
         # --------------------------------------------------------------------------
@@ -53,13 +55,13 @@ def fit (model, training_data, validation_data, optim, start_epoch, args):
             total=0
             net_loss=0.0
             with torch.no_grad():
-                for picture in validation_data:
-                    if use_cuda:
-                        picture = picture.cuda()
-
-                    net_loss += loss_batch(model, loss, picture)
-                    total += 1
-                    image = picture
+                for data, _  in validation_data:
+                    for _, picture in enumerate(data):
+                        if use_cuda:
+                            picture = picture.cuda()
+                        net_loss += loss_batch(model, loss, picture)
+                        total += 1
+                        image = picture
 
             validation_loss = np.sum(np.multiply(net_loss, total)) / total
 

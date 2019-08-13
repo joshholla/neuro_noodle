@@ -3,13 +3,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import lr_scheduler
-from torchvision import datasets, transforms, utils
+import torchvision
+from torchvision import datasets, transforms, utils, models
+import matplotlib.pyplot as plt
 
 import numpy as np
 import ipdb
 import tqdm
 from tqdm import tqdm
-
+import os
+import copy
 
 from model import *
 from utils import *
@@ -19,62 +22,69 @@ def get_model():
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     return model, optimizer
 
-def loss_batch(model, loss_function, image, optim=None):
-    loss = loss_function(model(image), image)
-    # so that we don't train on validation data
-    if optim is not None:
-        loss.backward()
-        optim.step
-        optim.zero_grad()
+def fit(model, dataloaders, criterion, optimizer, args):
+    num_epochs = args.n_epochs
+    validation_accuracy_history = []
+    best_model_weights = copy.deepcopy(model.state_dict())
+    best_acc= 0.0
 
-    return loss.item()
+    for epoch in range(num_epochs):
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()   # Set model to evaluate mode
 
-def show_image(model, image):
-    reconstruct = model(image)
+            running_loss = 0.0
+            running_corrects = 0
+
+            # Iterate over data.
+            for inputs, labels in dataloaders[phase]:
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward
+                # track history if only in train
+                with torch.set_grad_enabled(phase == 'train'):
+                    outputs = model(inputs)
+                    loss = criterion(outputs, labels)
+
+                    _, preds = torch.max(outputs, 1)
+
+                    # backward + optimize only if in training phase
+                    if phase == 'train':
+                        loss.backward()
+                        optimizer.step()
+
+                # statistics
+                running_loss += loss.item() * inputs.size(0)
+                running_corrects += torch.sum(preds == labels.data)
+
+            epoch_loss = running_loss / len(dataloaders[phase].dataset)
+            epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
+
+            print(f"{phase} loss = {epoch_loss}")
+            print(f"{phase} accuracy = {epoch_acc}")
+            if args.comet:
+                args.experiment.log_metric(f"{phase} loss", epoch_loss, step=epoch)
+                args.experiment.log_metric(f"{phase} accuracy", epoch_acc, step=epoch)
+
+            # deep copy the model
+            if phase == 'val' and epoch_acc > best_acc:
+                best_model_weights = copy.deepcopy(model.state_dict())
+                best_acc = epoch_acc
+            if phase == 'val':
+                validation_accuracy_history.append(epoch_acc)
+
+    print(f"Best validation accuracy= {best_acc}")
     if args.comet:
-        args.experiment.log_image(get_image(reconstruct), name= epoch)
+        args.experiment.log_metric(f"Best validation accuracy", best_acc)
 
-
-def fit (model, training_data, validation_data, optim, start_epoch, args):
-    loss = torch.nn.BCELoss()
-    for epoch in tqdm(range(start_epoch, start_epoch+args.n_epochs)):
-        # training loop
-        # ------------------------------------------------------------------------------
-        model.train()
-        for data, _ in training_data:
-            for _, picture in enumerate(data):
-                picture = picture.view(picture.size(0), -1)
-                if use_cuda:
-                    picture = picture.cuda()
-                loss_batch(model, loss, picture, optim)
-
-        # test loop
-        # --------------------------------------------------------------------------
-        if ( (epoch+1) % args.test_every == 0 ):
-            model.eval()
-            total=0
-            net_loss=0.0
-            with torch.no_grad():
-                for data, _  in validation_data:
-                    for _, picture in enumerate(data):
-                        if use_cuda:
-                            picture = picture.cuda()
-                        net_loss += loss_batch(model, loss, picture)
-                        total += 1
-                        image = picture
-
-            validation_loss = np.sum(np.multiply(net_loss, total)) / total
-
-            if ((epoch+1) % args.log_every == 0 ):
-                print(epoch, validation_loss)
-                if args.comet:
-                    args.experiment.log_metric("Validation Loss", validation_loss, step= epoch)
-
-                # also sample data and see what the reconstruction looks like
-                show_image(model, image)
-
-        if ((epoch+1) % args.save_every == 0):
-            model.save_session(model, optim, epoch)
-
-        last_epoch = epoch
-    model.save_session(model, optim, last_epoch)
+    # send back the best model seen so far:
+    model.load_state_dict(best_model_weights)
+    save_session(model, optim, args)
+    return model, validation_accuracy_history

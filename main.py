@@ -38,13 +38,11 @@ if __name__ == "__main__":
     parser.add_argument('--save_dir',type=str,default='weights/',help='directory for saving session')
 
     parser.add_argument('--batch_size',type=int,default=24 ,help='size of batches')
-    parser.add_argument('--n_epochs',type=int, default=2000, help='number of epochs to run for' )
+    parser.add_argument('--n_epochs',type=int, default=40, help='number of epochs to run for' )
 
     parser.add_argument('--test_every',type=int, default=200, help='test every _ epochs' )
     parser.add_argument('--save_every',type=int, default=500, help='save every _ epochs' )
     parser.add_argument('--log_every',type=int, default=5, help='log every _ epochs' )
-
-
 
     args = parser.parse_args()
 
@@ -74,24 +72,21 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(42)
 
 
-
-    training_loader, validation_loader = _dataloader(args)
-
-    # Let's use a pre-trained classification model. Like ResNet34
+    # Let's use a pre-trained classification model like ResNet!
     # ------------------------------------------------------------------------------
 
-    model, optim = get_pretrained_model()
+    model_finetune, input_size = get_pretrained_model()
     if use_cuda:
-        model.cuda()
+        model_finetune.cuda()
 
+    dataloaders = _dataloader(args, input_size)
 
-    # load trained model if necessary
-    if args.load_dir is not None:
-        model, optim, start_epoch = load_session(model, optim, args)
-    else:
-        start_epoch = 0
+    parameters_to_update=model_finetune.parameters()
+    optimizer_finetune= optim.SGD(parameters_to_update, lr= 0.001, momentum=0.9)
 
-    fit(model, training_loader, validation_loader, optim, start_epoch, args)
+    criterion = nn.CrossEntropyLoss()
+    model_finetune, hist = fit(model, dataloaders, criterion, optimizer_finetune, args)
+
     args.experiment.end()
 
 

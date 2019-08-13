@@ -17,10 +17,7 @@ import copy
 from model import *
 from utils import *
 
-def get_model():
-    model = Autoencoder()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    return model, optimizer
+use_cuda = torch.cuda.is_available()
 
 def fit(model, dataloaders, criterion, optimizer, args):
     num_epochs = args.n_epochs
@@ -28,7 +25,7 @@ def fit(model, dataloaders, criterion, optimizer, args):
     best_model_weights = copy.deepcopy(model.state_dict())
     best_acc= 0.0
 
-    for epoch in range(num_epochs):
+    for epoch in tqdm(range(num_epochs)):
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
             if phase == 'train':
@@ -41,8 +38,9 @@ def fit(model, dataloaders, criterion, optimizer, args):
 
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
-                inputs = inputs.to(device)
-                labels = labels.to(device)
+                if use_cuda:
+                    inputs = inputs.cuda()
+                    labels = labels.cuda()
 
                 # zero the parameter gradients
                 optimizer.zero_grad()

@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+import torchvision
+from torchvision import datasets, transforms, utils, models
 
 use_cuda = torch.cuda.is_available()
 

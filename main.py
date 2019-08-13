@@ -13,7 +13,7 @@ import tqdm
 from tqdm import tqdm
 import ipdb
 
-from utils import _dataloader, get_image
+from utils import _dataloader
 from model import *
 from train import *
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     optimizer_finetune= optim.SGD(parameters_to_update, lr= 0.001, momentum=0.9)
 
     criterion = nn.CrossEntropyLoss()
-    model_finetune, hist = fit(model, dataloaders, criterion, optimizer_finetune, args)
+    model_finetune, hist = fit(model_finetune, dataloaders, criterion, optimizer_finetune, args)
 
     args.experiment.end()
 

@@ -7,7 +7,7 @@ import torchvision
 import PIL
 import random
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
-from torchvision import transforms, utils
+from torchvision import transforms, utils, datasets
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
@@ -37,7 +37,7 @@ def make_classification_dataset():
 
 
 
-def _dataloader(args):
+def _dataloader(args, input_size):
     #This is where I load my dataset, and return something that my model can use
     # ------------------------------------------------------------------------------
 
@@ -73,12 +73,10 @@ def save_session(model, optim, args):
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
 
-    # save the model and optimizer state
+    # save the model state
     torch.save(model.state_dict(), os.path.join(args.save_dir, 'model.pth'))
-    torch.save(optim.state_dict(), os.path.join(args.save_dir, 'optim.pth'))
     print('Successfully saved model')
 
     #save to Comet Asset Tab
     if args.comet:
-        args.experiment.log_asset(file_path= os.path.join(args.save_dir, 'model.pth'), file_name='classification_model.pth' )
-        args.experiment.log_asset(file_path= os.path.join(args.save_dir, 'optim.pth'), file_name='classification_optim.pth' )
+        args.experiment.log_asset(file_data= args.save_dir+'/model.pth', file_name='classification_model.pth' )

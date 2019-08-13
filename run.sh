@@ -7,4 +7,4 @@
 # Can also be used to change up hyperparameter settings, and run in parallel if
 # desired.
 
-python main.py --comet --namestr="AutoEncoder_test_run"
+python main.py --comet --namestr="Train_Classifier" --n_epochs=25

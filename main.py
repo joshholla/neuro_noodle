@@ -13,7 +13,7 @@ import tqdm
 from tqdm import tqdm
 import ipdb
 
-from utils import _dataloader, get_image
+from utils import _dataloader, get_image, load_session
 from model import *
 from train import *
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     parser.add_argument('--namestr',type=str,default='neuro_ml',help='additional info in output filename to describe experiments')
 
     parser.add_argument('--data_dir',type=str,default='Resources/stimuli/',help='path to data')
-    parser.add_argument('--load_dir',type=str,default=None,help='use existing model, send local path to saved model')
+    parser.add_argument('--load_dir',type=str,default=None,help='use existing model. Load model from _ directory')
     parser.add_argument('--save_dir',type=str,default='weights/',help='directory for saving session')
 
     parser.add_argument('--batch_size',type=int,default=24 ,help='size of batches')

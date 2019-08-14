@@ -44,11 +44,22 @@ if __name__ == "__main__":
     parser.add_argument('--save_every',type=int, default=500, help='save every _ epochs' )
     parser.add_argument('--log_every',type=int, default=5, help='log every _ epochs' )
 
+    parser.add_argument("--rejig_data", action='store_true', default=False, help='to move the data around for classification')
+
     args = parser.parse_args()
 
     if args.debug:
         args.use_logger = False
         ipdb.set_trace()
+
+
+    # Call only once. Moves data into new folders and classes. Suitable for
+    # happy vs sad classification
+    # ------------------------------------------------------------------------------
+    if args.rejig_data:
+        make_classification_dataset()
+        print("Dataset has been re-located for classification. Please remove --rejig_data flag in future runs")
+        break
 
     # Configure Logging.
     # a settings.json file (in gitignore) should be included for logging to comet.

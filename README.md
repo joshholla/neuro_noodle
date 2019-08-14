@@ -1,104 +1,65 @@
----
-title: 'MusicML ReadMe'
-disqus: hackmd
----
+Welcome to the Classification branch!
+==
 
-Project Title
-===
-![downloads](https://img.shields.io/github/downloads/atom/atom/total.svg)
-![build](https://img.shields.io/appveyor/ci/:user/:repo.svg)
+If this is your first time here, please refer to the repository's associated web page [here](https://joshholla.github.io/neuro_noodle/). (It contains my findings and presents my code)
 
-## Table of Contents
+This repository deals with the building of a classifier. It classifies faces in the dataset as happy or sad.  
+I reason that a good classifier might be useful in training a computer to view fMRI scans and infer emotions from them.
 
-[TOC]
+## Getting Started
 
-## Beginners Guide
+To get started using this repository, please install dependancies using pip:
+> $ pip install -r requirements.txt   
 
-If you are a total beginner to this, start here!
 
-1. Visit hackmd.io
-2. Click "Sign in"
-3. Choose a way to sign in
-4. Start writing note!
-
-User story
----
-
-```gherkin=
-Feature: Guess the word
-
-  # The first example has two steps
-  Scenario: Maker starts a game
-    When the Maker starts a game
-    Then the Maker waits for a Breaker to join
-
-  # The second example has three steps
-  Scenario: Breaker joins a game
-    Given the Maker has started a game with the word "silky"
-    When the Breaker joins the Maker's game
-    Then the Breaker must guess a word with 5 characters
+The project file structure should be as follows:
 ```
-> I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it. [name=Bill Gates]
-
-
-```gherkin=
-Feature: Shopping Cart
-  As a Shopper
-  I want to put items in my shopping cart
-  Because I want to manage items before I check out
-
-  Scenario: User adds item to cart
-    Given I'm a logged-in User
-    When I go to the Item page
-    And I click "Add item to cart"
-    Then the quantity of items in my cart should go up
-    And my subtotal should increment
-    And the warehouse inventory should decrement
+.
+├── LICENSE.md
+├── README.md
+├── main.py
+├── model.py
+├── Resources
+│   └── stimuli
+│       └── <data>
+├── requirements.txt
+├── run.sh
+├── scratch
+│   └── Classynoodle.ipynb
+├── settings.json
+├── train.py
+└── utils.py
 ```
 
-> Read more about Gherkin here: https://docs.cucumber.io/gherkin/reference/
+Add the data to `Resources/stimuli`
 
-User flows
----
-```sequence
-Alice->Bob: Hello Bob, how are you?
-Note right of Bob: Bob thinks
-Bob-->Alice: I am good thanks!
-Note left of Alice: Alice responds
-Alice->Bob: Where have you been?
+You first need to run a command to re-jig the dataset. This is done by running 
+```
+python main.py --rejig_data
+```
+Once this is done, the classifier can be trained to detect emotion from the dataset.
+
+## Logging
+
+If you plan to log results to your `comet.ml` repository, please add and populate a `settings.json` file.
+
+Your file should look something like this:
+```
+{"username":"<username>", "apikey":"<key>", "restapikey":"<key>", "project":"neuromlnoodle"}
 ```
 
-> Read more about sequence-diagrams here: http://bramp.github.io/js-sequence-diagrams/
+## Running the program
 
-Project Timeline
----
-```mermaid
-gantt
-    title A Gantt Diagram
+In order to launch the program, you can launch `run.sh` or run using python3
 
-    section Section
-    A task           :a1, 2014-01-01, 30d
-    Another task     :after a1  , 20d
-    section Another
-    Task in sec      :2014-01-12  , 12d
-    anther task      : 24d
 ```
+python main.py --args
+```
+The various arguments and their functionality are listed in `main.py` file.
 
-> Read more about mermaid here: http://knsv.github.io/mermaid/
+The `.ipynb` notebooks can be moved to their parent directory and run interactively.  
 
-
-## Usage
-To run code from this project, please install requirements from requirements.txt, or create a conda environment with conda.yml 
-[TODO]
-+ Comet stuff. Do the settings.json stuff.
-+ install requirements
-+ Open up the notebook and run through? 
+Logs of the experiments that I ran, are available [here](https://www.comet.ml/joshholla/neuromlnoodle/view/). 
 
 
-## Findings
-
-:::info
-**Find this document incomplete?** Leave a comment!
-:::
-
-###### tags: `Templates` `Documentation`
+Enjoy!

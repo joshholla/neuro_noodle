@@ -34,3 +34,9 @@ class Autoencoder(torch.nn.Module):
         # Generate image from the decoder.
         x = self.decoder(x)
         return x
+
+
+def get_model():
+    model = Autoencoder()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    return model, optimizer

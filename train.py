@@ -14,10 +14,6 @@ from tqdm import tqdm
 from model import *
 from utils import save_session, get_image
 
-def get_model():
-    model = Autoencoder()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    return model, optimizer
 
 def loss_batch(model, loss_function, image, optim=None):
     loss = loss_function(model(image), image)

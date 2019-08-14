@@ -26,7 +26,8 @@ def fit(model, dataloaders, criterion, optimizer, args):
     best_acc= 0.0
 
     for epoch in tqdm(range(num_epochs)):
-        # Each epoch has a training and validation phase
+        #  Testing and training all in one!!11one
+        # --------------------------------------------------------------------------
         for phase in ['train', 'val']:
             if phase == 'train':
                 model.train()  # Set model to training mode
@@ -36,7 +37,6 @@ def fit(model, dataloaders, criterion, optimizer, args):
             running_loss = 0.0
             running_corrects = 0
 
-            # Iterate over data.
             for inputs, labels in dataloaders[phase]:
                 if use_cuda:
                     inputs = inputs.cuda()
@@ -45,8 +45,7 @@ def fit(model, dataloaders, criterion, optimizer, args):
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
-                # forward
-                # track history if only in train
+                # track history only in train
                 with torch.set_grad_enabled(phase == 'train'):
                     outputs = model(inputs)
                     loss = criterion(outputs, labels)
@@ -58,20 +57,27 @@ def fit(model, dataloaders, criterion, optimizer, args):
                         loss.backward()
                         optimizer.step()
 
-                # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
+            # Testing that loss isn't stuck at zero
+            # --------------------------------------------------------------------------
+
+            assert epoch_loss !=0, "Loss is staying at Zero! (T_T)  "
+
+            # Log metrics
+            # --------------------------------------------------------------------------
             print(f"{phase} loss = {epoch_loss}")
             print(f"{phase} accuracy = {epoch_acc}")
             if args.comet:
                 args.experiment.log_metric(f"{phase} loss", epoch_loss, step=epoch)
                 args.experiment.log_metric(f"{phase} accuracy", epoch_acc, step=epoch)
 
-            # deep copy the model
+            # deep copy the model because we want the model with the best
+            # validation accuracy to be used for predictions.
             if phase == 'val' and epoch_acc > best_acc:
                 best_model_weights = copy.deepcopy(model.state_dict())
                 best_acc = epoch_acc
@@ -82,7 +88,9 @@ def fit(model, dataloaders, criterion, optimizer, args):
     if args.comet:
         args.experiment.log_metric(f"Best validation accuracy", best_acc)
 
-    # send back the best model seen so far:
+    # send back the best model seen. But first, save them weights.
+    # --------------------------------------------------------------------------
     model.load_state_dict(best_model_weights)
     save_session(model, optim, args)
+
     return model, validation_accuracy_history

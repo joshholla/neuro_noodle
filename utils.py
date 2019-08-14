@@ -12,6 +12,11 @@ from matplotlib import pyplot
 import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
+
+# ----------------------------------------------------------------------------------
+#                         CREATE A CLASSIFICATION DATASET
+# ----------------------------------------------------------------------------------
+
 def make_classification_dataset():
     os.mkdir('Resources/classify')
     os.mkdir('Resources/classify/train')
@@ -36,6 +41,9 @@ def make_classification_dataset():
                 shutil.move(source_directory, 'Resources/classify/train/happy')
 
 
+# ----------------------------------------------------------------------------------
+#                               DATALOADING
+# ----------------------------------------------------------------------------------
 
 def _dataloader(args, input_size):
     #This is where I load my dataset, and return something that my model can use

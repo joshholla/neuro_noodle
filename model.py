@@ -6,8 +6,9 @@ from torchvision import datasets, transforms, utils, models
 
 use_cuda = torch.cuda.is_available()
 
-# ResNet 18!
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+#                          RETRAINING RESNET18 MODEL
+# ----------------------------------------------------------------------------------
 
 def get_pretrained_model():
     model_ft = models.resnet18(pretrained=True)

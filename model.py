@@ -2,10 +2,16 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+
 use_cuda = torch.cuda.is_available()
 
+
+# ----------------------------------------------------------------------------------
+#                         BUILDING OUR NEURAL NETWORK
+# ----------------------------------------------------------------------------------
 class Autoencoder(torch.nn.Module):
     # The AutoEncoder Model
+    # ------------------------------------------------------------------------------
     def __init__(self):
         super(Autoencoder,self).__init__()
         self.encoder = nn.Sequential(
@@ -26,7 +32,11 @@ class Autoencoder(torch.nn.Module):
         x = self.encoder(x)
         return self.decoder(x)
 
+    # For usage after training is done
+    # ------------------------------------------------------------------------------
+
     def encode(self, x):
+        # Generate latent representation of the input image
         x = self.encoder(x)
         return x
 
@@ -37,6 +47,7 @@ class Autoencoder(torch.nn.Module):
 
 
 def get_model():
+    # Returns the model and optimizer
     model = Autoencoder()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     return model, optimizer

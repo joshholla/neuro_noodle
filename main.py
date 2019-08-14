@@ -2,29 +2,24 @@ from comet_ml import Experiment
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 import argparse
 import os
 import json
-
-import tqdm
-from tqdm import tqdm
 import ipdb
 
 from utils import _dataloader, get_image, load_session
 from model import *
-from train import *
+from train import fit
 
 use_cuda = torch.cuda.is_available()
 
-# ------------------------------------------------------------------------------
-# ADD ASSERTS AND TESTING TOO!
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+#                        THIS IS THE AUTOENCODER BRANCH!
+# ----------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # Where the command line magic happens
+    # Where the command line magic happens.
     # ------------------------------------------------------------------------------
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action='store_true', default=False, help='to prevent logging (even to disk), when debugging.')
@@ -73,7 +68,7 @@ if __name__ == "__main__":
     torch.manual_seed(42)
     torch.cuda.manual_seed_all(42)
 
-    # Fit Model to data here:
+    # Obtain and train our model here:
     # ------------------------------------------------------------------------------
     model, optim = get_model()
     if use_cuda:
@@ -88,9 +83,9 @@ if __name__ == "__main__":
         start_epoch = 0
 
     fit(model, training_loader, validation_loader, optim, start_epoch, args)
+
     args.experiment.end()
 
-
     # ------------------------------------------------------------------------------
-    # So Long, and Thanks for All the Fish!   >< ((('>
+    # So Long, and Thanks for All the Fish!   >< ((('>    >< ((('>    >< ((('>
     # ------------------------------------------------------------------------------

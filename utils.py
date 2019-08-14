@@ -4,27 +4,29 @@ import torch
 import torchvision
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-import matplotlib.pyplot as plt
 from torchvision.transforms import ToPILImage
 
 
+# ----------------------------------------------------------------------------------
+#                               DATALOADING
+# ----------------------------------------------------------------------------------
+
 def _dataloader(args):
-    #This is where I load my dataset, and return something that my model can use
+    # This is where I load the dataset and return something that the model can use
     # ------------------------------------------------------------------------------
-    train_dataset = torchvision.datasets.ImageFolder(root=args.data_dir, transform=torchvision.transforms.ToTensor())
+    train_dataset = torchvision.datasets.ImageFolder(root=args.data_dir,transform=torchvision.transforms.ToTensor())
     augmented_dataset = _augment(train_dataset)
 
     training, validation = _split(augmented_dataset, args)
     return training, validation
 
 def _augment(data):
-    # Not Implemented TODO
+    # Not Implemented.
     return data
 
-def _split(train_dataset,args,
-           num_workers=0,
-           valid_size=0.1,
-           sampler=torch.utils.data.sampler.SubsetRandomSampler):
+def _split(train_dataset,args, num_workers=0, valid_size=0.1, sampler=torch.utils.data.sampler.SubsetRandomSampler):
+    # This is where I split data into training and validation sets.
+    # ------------------------------------------------------------------------------
     batch_size = args.batch_size
     num_train=len(train_dataset)
     indices= list (range(num_train))
@@ -41,34 +43,27 @@ def _split(train_dataset,args,
     return training,validation
 
 
+# Don't use this function as we don't want the dataset images in public.
 def get_image(x):
-    x.detatch().numpy()
-    output = ToPILImage()
-    return output(x)
+#     x.detatch().numpy()
+#     output = ToPILImage()
+#     return output(x)
+    return x
 
-# ------------------------------------------------------------------------------
-# Future TODO:
-# One more thing I could do is normalize the data, and check for the mean and
-# SD. Get to it later if I can. Would be a good analysis of the dataset.
-
-# https://gist.github.com/andrewjong/6b02ff237533b3b2c554701fb53d5c4d
-# https://discuss.pytorch.org/t/dataloader-filenames-in-each-batch/4212/4?u=ajong
-# In case I want to save the image names in the face, and train a classifier for
-# funsies.
-# ------------------------------------------------------------------------------
-
-
-# ------------------------------------------------------------------------------
-# Logging
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+#                               LOGGING
+# ----------------------------------------------------------------------------------
 
 def save_session(model, optim, args, epoch):
-    path = os.path.join(args.save_dir, str(epoch)) # appending epoch number to
-    # the file, so I know what epoch the saved weights are from.
+    # appending epoch number to the file, so I know what epoch the saved weights
+    # are from.
+    # ------------------------------------------------------------------------------
+    path = os.path.join(args.save_dir, str(epoch))
     if not os.path.exists(path):
         os.makedirs(path)
 
     # save the model and optimizer state
+    # ------------------------------------------------------------------------------
     torch.save(model.state_dict(), os.path.join(path, 'model.pth'))
     torch.save(optim.state_dict(), os.path.join(path, 'optim.pth'))
     print('Successfully saved model')
@@ -80,6 +75,8 @@ def save_session(model, optim, args, epoch):
 
 
 def load_session(model, optim, args):
+    # Bring the model back, and restart. (With exception handling)
+    # ------------------------------------------------------------------------------
     try:
         start_epoch = int(args.load_dir.split('/')[-1])
         model.load_state_dict(torch.load(os.path.join(args.load_dir, 'model.pth')))

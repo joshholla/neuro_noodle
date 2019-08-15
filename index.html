@@ -10,10 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="mobile-web-app-capable" content="yes">
     <title>
-      Joshua Holla
+        Joshua Holla
     </title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    <!-- <link rel="icon" type="image/png" href="https://hackmd.io/favicon.png"> -->
     <link rel="apple-touch-icon" href="https://hackmd.io/apple-touch-icon.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
@@ -35,31 +34,61 @@
 </head>
 
 <body>
-    <div id="doc" class="markdown-body container-fluid comment-enabled" data-hard-breaks="true" style="position: relative;"><h1 id="NeuroML---Joshua-Holla"><a class="anchor hidden-xs" href="#NeuroML---Joshua-Holla" title="NeuroML---Joshua-Holla"><span class="octicon octicon-link"></span></a>NeuroML - Joshua Holla</h1><p>Welcome! This is my exploratory dive into the dataset that was provided by email.</p><p>The first thing that I like to do, is to observe the data, and try to reason about it.</p><p>…it appears to be a set of faces, each showing a range of emotions, ranging from happy to sad.</p><h2 id="Looking-at-the-data"><a class="anchor hidden-xs" href="#Looking-at-the-data" title="Looking-at-the-data"><span class="octicon octicon-link"></span></a>Looking at the data</h2><p>At first I thought a-HA! GANS!<br>
-I can’t wait to throw the latest and greatest at this problem.<br>
-What about VAE’s?? They’re pretty cool. I hear there are some new generative VQ-VAE’s floating about. Let’s try and use them!!</p><p>No.<br>
-Stop.</p><p>GANs are definitely super cool, but let’s look at my constraints - there are around 240 images, which is a rather small dataset, and I don’t have time to train a GAN for awfully long. Plus, how would that fit in with the entire project?</p><blockquote>
-<p>Step one, as always, is figuring out <code>WHAT</code> I want to do with the data.</p>
-</blockquote><p>Can I confirm what I observe with my eyes? Can I be shown additional things with statistical methods?</p><p>On seeing that it’s faces that show varied emotions, and by reading the abstract of the project, I thought it would be a fun exercise to try and see if a) I could separate out displays of each emotion separately (either with a clustering algorithm or tSNE or UMAP).</p><p>The paper that was provided on the page did talk about performing PCA for figuring out an <code>eigenmask</code>  for faces, and trying to encode what it believed the image saw.</p><p>Principal Component Analysis (PCA) decomposes a large set of observations into a small number of factors - it’s no wonder that it was used in the paper <code>cite</code> that was shared as an example.<br>
-Once we have a small number of factors, it becomes easier for us to analyze or predict what will happen to a larger set of our data.</p><p><code>However</code>, PCA is rooted in linear algebra. An assumption that it makes is that we are able to encode our data as a linear combination of smaller factors.</p><p>Enter the neural network!<br>
-A neural network is a powerful function approximator, and should theoretically be able to decompose the input images non-linearly.</p><p>It would also be cool to try and <code>encode</code> a complicated large-dimensonal image to a latent vector.</p><p>I could try and find clusters in the large pixel-space images in the dataset, and then compare those results with clusters from the latent representation obtained from an AutoEncoder - which would hopefully have much less data to deal with (and hopefully be a lot nicer)</p><p>Often simple is better.<br>
+    <div id="doc" class="markdown-body container-fluid comment-enabled" data-hard-breaks="true" style="position: relative;"><h1 id="NeuroMLMusic-tryouts---Joshua-Holla"><a class="anchor hidden-xs" href="#NeuroMLMusic-tryouts---Joshua-Holla" title="NeuroMLMusic-tryouts---Joshua-Holla"><span class="octicon octicon-link"></span></a>NeuroMLMusic tryouts - Joshua Holla</h1><p>Welcome! This is my exploratory dive into the dataset. This page is meant to be a summary of the ‘homework’ results and thought process. It goes along with <a href="https://github.com/joshholla/neuro_noodle" target="_blank" rel="noopener">this codebase on github</a>.</p><p><img src="https://i.imgur.com/Jj6j7jh.png" alt=""></p><h2 id="Looking-at-the-data"><a class="anchor hidden-xs" href="#Looking-at-the-data" title="Looking-at-the-data"><span class="octicon octicon-link"></span></a>Looking at the data</h2><p>The first thing that I like to do, is to observe the data, and reason about it.</p><p>…it appears to be a set of faces, each showing a range of emotions, ranging from happy to sad.</p><p>At first I thought a-HA!</p><blockquote>
+<p>This looks like a job for …GANS!</p>
+</blockquote><p><img src="https://i.imgur.com/PMioPdV.png" alt=""></p><p>…I can’t wait to throw the latest and greatest at this problem!!<br>
+What about VAE’s?? They’re pretty cool. I hear there are some new generative VQ-VAE’s floating about. Let’s try and implement them!!</p><p>No.<br>
+Stop.</p><p><img src="https://i.imgur.com/WV7QnOO.jpg" alt=""></p><p>GANs are definitely super cool, but let’s think about my constraints:</p><p>There are only around 240 images in the dataset, which makes this a rather small dataset, and I don’t have time or compute to train a GAN for awfully long.<br>
+Plus, how would that fit in with the entire project?</p><h2 id="Figuring-out-what-I-want-to-do"><a class="anchor hidden-xs" href="#Figuring-out-what-I-want-to-do" title="Figuring-out-what-I-want-to-do"><span class="octicon octicon-link"></span></a>Figuring out what I want to do:</h2><blockquote>
+<h1 id="Step-one-as-always-is-figuring-out-WHAT-we-want-to-do-with-the-data"><a class="anchor hidden-xs" href="#Step-one-as-always-is-figuring-out-WHAT-we-want-to-do-with-the-data" title="Step-one-as-always-is-figuring-out-WHAT-we-want-to-do-with-the-data"><span class="octicon octicon-link"></span></a>Step one, as always, is figuring out <code>WHAT</code> we want to do with the data.</h1>
+</blockquote><p><strong>Firstly</strong>, Can I confirm what I observe with my eyes?</p><p>I read through the abstract of the project, and mulled over the fact that our data is mostly composed of faces showing different emotions.<br>
+I thought it would be a fun exercise to try and see if I could separate out each emotional display with some sort of clustering algorithm like tSNE or UMAP. I would likely require some sort of latent space representation as well.</p><p>Principal Component Analysis (PCA) decomposes a large set of observations into a small number of factors - I reason that this is why it is used in the <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6601811/" target="_blank" rel="noopener">paper</a> that was shared as an example.<br>
+The author of that paper performed PCA to figure out an <code>eigenface</code> (sort of like a latent representation for faces), and then looked for brain signals which might correlate to these representations in the fMRI scans.</p><p>Once we have a small number of factors, it becomes easier for us to analyze or predict what will happen to a larger set of our data.</p><p>However, the issue with PCA is that it is rooted in linear algebra. An underlying assumption it makes is that we are able to encode our data as a linear combination of smaller factors.</p><p>Enter the neural network!<br>
+A neural network is a powerful function approximator, and should theoretically be able to decompose the input images non-linearly.</p><p><img src="https://i.imgur.com/Kt3LD1N.jpg" alt=""></p><p>It would also be cool to try and <code>encode</code> a complicated large-dimensonal image to a latent vector.</p><p>I could try and find clusters in the large pixel-space images in the dataset, and then compare those results with clusters from the latent representation obtained from an AutoEncoder - which would hopefully have much less data to deal with (and hopefully be a lot nicer)</p><p>Often simple is better.<br>
 I don’t need to complicate things.<br>
-What I’m after is a simple latent space representation of the image.</p><p>A Vanilla Auto-Encoder should do the trick just fine.</p><p>Secondly, since we’re dealing with Images, and recognizing emotional responses in human beings, I reason that it would be a good idea to have an accurate classification algorithm.<br>
-This technique of transfer learning from a pre-trained neural network can later be used for classification of our functional magnetic resonance imaging results, to detect changes in subject’s emotional response to the musical clips we show them, and can potentially automate the process of identifying a change in emotional response when being told that the music was made by a human or computer.</p><p>For this task, I reason that the best method forward, is to use a pre-trained model like ResNet18, swap out the last layer, and retrain on our dataset.</p><h2 id="Troubleshooting"><a class="anchor hidden-xs" href="#Troubleshooting" title="Troubleshooting"><span class="octicon octicon-link"></span></a>Troubleshooting:</h2><p>Things that I can do - increase learning rate, do some debugging and walk through the code, to check if it actually IS working out right.<br>
-Or, I could use a pre-trained model, and remove the last few layers, replacing it with my latent space layer, and reversing the process. This seems to be a good idea, and would also save compute - compute has an environmental impact, so it’s best not to waste it when I have access to pre-trained models.</p><h2 id="Conclusions"><a class="anchor hidden-xs" href="#Conclusions" title="Conclusions"><span class="octicon octicon-link"></span></a>Conclusions:</h2><p>All in all, I ended up having a lot of fun, and learning a bunch with this exercise!</p><p>Some of the things that I learnt were:</p><ul>
-<li>Start running experiments sooner rather than later.</li>
-<li>Less is more.</li>
-<li>Enjoy the process.</li>
-</ul><p>I hope that I have convinced you that I would be both qualified and easy to work with.</p><p>I know you probably have a bunch of submissions to go through, but in any case, thankyou for sending this ‘homework’ my way. It would totally make my day if I get the opportunity to work with you!</p><p>I am fascinated by music, its relationship with living beings, and how how it transcends languages and cultures. I am excited by what this proposed project can uncover.</p><p>Thank you for your time and consideration.<br>
-Joshua Holla</p><h2 id="Ideas-that-did-not-make-the-cut"><a class="anchor hidden-xs" href="#Ideas-that-did-not-make-the-cut" title="Ideas-that-did-not-make-the-cut"><span class="octicon octicon-link"></span></a>Ideas that did not make the cut</h2><p>Here are some of the ideas I had, which didn’t make the cut:</p><ul>
+What I’m after is a simple latent space representation of the image.</p><p>A Vanilla Auto-Encoder should do the trick just fine.</p><p><strong>Secondly</strong>, since we’re dealing with Images, and recognizing emotional responses in human beings, I reason that it would be a good idea to have an accurate classification algorithm.<br>
+This technique of transfer learning from a pre-trained neural network can later be used for classification of our functional magnetic resonance imaging results, to detect changes in subject’s emotional response to the musical clips we show them, and can potentially automate the process of identifying a change in emotional response when being told that the music was made by a human or computer.</p><p>For this task, I reason that the best method forward, is to use a pre-trained model like ResNet18, swap out the last layer, and retrain on our dataset.</p><h2 id="Results"><a class="anchor hidden-xs" href="#Results" title="Results"><span class="octicon octicon-link"></span></a>Results:</h2><p>Let’s start by showing the results of the classifer!<br>
+The codebase for this exists on <a href="https://github.com/joshholla/neuro_noodle/tree/classification" target="_blank" rel="noopener">this branch</a> in github, and is explained on <a href="https://github.com/joshholla/neuro_noodle/blob/classification/PRESENTATION.md" target="_blank" rel="noopener">this page</a></p><p>This is a plot of the validation accuracy obtained while training for 25 epochs.<br>
+<img src="https://i.imgur.com/wmlente.jpg" alt=""></p><p>The best accuracy on our validation set was about 95.8% .</p><p>Logs from the Experiment (and the model weights) can be found <a href="https://www.comet.ml/joshholla/neuromlnoodle/3d644425f6794268879aef4dd86982f8" target="_blank" rel="noopener">here</a></p><p>This implies that this method (re-training a pre-trained network) can be used pretty easily on fMRI data to detect whether the subject’s emotions changed after being told about the source of their music.</p><blockquote>
+<p>Nice!</p>
+</blockquote><hr><p>Now on to the next task of <code>clustering</code></p><p>This is the result of clustering in the pixel space. I used <a href="https://umap-learn.readthedocs.io/en/latest/how_umap_works.html" target="_blank" rel="noopener">UMAP</a>, and this is what I got:</p><p><img src="https://i.imgur.com/QTxDANW.png" alt=""></p><p>Great, this means that there’s most likely room for improvement! I expected poor results in the pixel space.</p><p>Hopefully the latent space encoding will be sufficiently different, and we’d be able to get crisp clusterings of different emotions!</p><p>Here is the explanation of my <a href="https://github.com/joshholla/neuro_noodle/blob/master/PRESENTATION.md" target="_blank" rel="noopener">Autoencoder codebase</a></p><p>…Unfortunately this is the validation loss after training for a few hours:<br>
+<img src="https://i.imgur.com/i816qtf.jpg" alt=""></p><p>What?! It’s moving <em>reeeeally</em> slowly!!<br>
+The neural network is being trained from scratch after all…</p><p>There are a couple things that I can do that this point:</p><ol>
+<li>I could increase the learning rate</li>
+<li>I could try and comb through my code for any possible bugs?</li>
+</ol><p>OR</p><ol start="3">
+<li>I could try and use a pre-trained model.<br>
+My logic for the pre-trained model route, would be that there are likely some overlapping features in images that can be re-used and re-trained. I can simply remove the last few layers, replace them with my latent space layer and then add a decoder.</li>
+</ol><p>Of my options, I am partial to the re-trainin approach. It would likely train much faster and save hours compute. (compute does have an <a href="https://www.technologyreview.com/s/613630/training-a-single-ai-model-can-emit-as-much-carbon-as-five-cars-in-their-lifetimes/" target="_blank" rel="noopener">environmental impact</a>, so it is best not to waste it when pre-trained models are freely available)</p><p>Unfortunately I don’t have the time to implement this. but it would be the next approach that I would try on this databse, since as the current direction seems to be moving too slowly.</p><blockquote>
+<p>(I did try and train the autoencoder from scratch for a while longer, but my losses were too large for too long, and I decided that it would not be worthwile to continue. I began to develop the classifier instead)</p>
+</blockquote><p>In case you missed it, here are the files to go over the code explanations again:</p><ul>
+<li><a href="https://github.com/joshholla/neuro_noodle/blob/classification/PRESENTATION.md" target="_blank" rel="noopener">Classification branch</a></li>
+<li><a href="https://github.com/joshholla/neuro_noodle/blob/master/PRESENTATION.md" target="_blank" rel="noopener">AutoEncoder branch</a></li>
+</ul><h2 id="Conclusions"><a class="anchor hidden-xs" href="#Conclusions" title="Conclusions"><span class="octicon octicon-link"></span></a>Conclusions:</h2><p>All in all, I ended up having a lot of fun, and learning a bunch with this exercise!</p><p>Some of the things that I learnt were:</p><blockquote>
+<h3 id="Less-is-more"><a class="anchor hidden-xs" href="#Less-is-more" title="Less-is-more"><span class="octicon octicon-link"></span></a>Less is more.</h3>
+</blockquote><blockquote>
+<h3 id="Start-running-experiments-and-playing-with-the-data-sooner-rather-than-later"><a class="anchor hidden-xs" href="#Start-running-experiments-and-playing-with-the-data-sooner-rather-than-later" title="Start-running-experiments-and-playing-with-the-data-sooner-rather-than-later"><span class="octicon octicon-link"></span></a>Start running experiments and playing with the data sooner rather than later.</h3>
+</blockquote><blockquote>
+<h3 id="Good-documentation-helps-Alot"><a class="anchor hidden-xs" href="#Good-documentation-helps-Alot" title="Good-documentation-helps-Alot"><span class="octicon octicon-link"></span></a>Good documentation helps. Alot.</h3>
+</blockquote><blockquote>
+<h3 id="Enjoy-the-process0"><a class="anchor hidden-xs" href="#Enjoy-the-process0" title="Enjoy-the-process0"><span class="octicon octicon-link"></span></a>Enjoy the process!</h3>
+</blockquote><p>I hope that I have convinced you that I would be both qualified and easy to work with.</p><p>I know that you probably have a bunch of submissions to go through, but in any case, thankyou for sending this ‘homework’ my way.<br>
+It would totally make my day if I get the opportunity to work with you!</p><p>I am fascinated by music, its relationship with living beings, and how how it transcends languages and cultures. I am stoked to learn what this proposed project can uncover.</p><p>Thank you for your time and consideration.<br>
+Joshua Holla</p><p><img src="https://i.imgur.com/Bvc6K4j.jpg" alt=""></p><h2 id="Extra-Ideas-that-didn’t-make-the-cut"><a class="anchor hidden-xs" href="#Extra-Ideas-that-didn’t-make-the-cut" title="Extra-Ideas-that-didn’t-make-the-cut"><span class="octicon octicon-link"></span></a>Extra: Ideas that didn’t make the cut</h2><p>Here are some of the ideas I had, which didn’t quite make it to execution:</p><ul>
 <li>
-<p>Once I have the latent space, I thought of generating emotions on a base face image (probably of a celebrity, taken from a Creative commons source)</p>
+<p>Once I had a latent space, I thought of generating emotions on a base face image (probably of a celebrity, or from a Creative Commons source). Seeing as how my latent space is taking too long to shape up, this part of the experiment isn’t going to happen any time soon. I would also probably do better with a Variational AutoEncoder (VAE) or a Beta VAE.</p>
 </li>
 <li>
-<p>Since this is a project related to generated music, and music is a very close cousin of dancing, I thought of doing Chor-Rnn type dancing stick figures. Found a dataset of figures here: <a href="https://flowers.inria.fr/choreography_database" target="_blank" rel="noopener">https://flowers.inria.fr/choreography_database</a><br>
-The idea would have been to take an image, identify its emotion and then using an RNN on the choreography database, generate a list of ‘imagined’ dance moves. I could train the sad dancing by limiting the allowed moves to ones with low movement. (this seemed a little too ambitious, and didn’t fit in with the <code>analysis</code> tone, so I scrapped the idea)</p>
+<p>Since this is a project related to generated music, and music is a very close cousin of dancing, I thought of doing <a href="https://arxiv.org/abs/1605.06921" target="_blank" rel="noopener">Chor-Rnn</a> type dancing stick figures. Found a dataset of figures on this page: <a href="https://flowers.inria.fr/choreography_database" target="_blank" rel="noopener">https://flowers.inria.fr/choreography_database</a></p>
 </li>
-</ul></div>
+</ul><p>The idea would have been to take an image, identify its emotion and then using an RNN on the choreography database, generate a list of ‘imagined’ dance moves. I could train the sad dancing by limiting the allowed moves to ones with low movement. (this seemed a little too ambitious, and didn’t fit in with the <code>analysis</code> tone, so I scrapped the idea)</p><p><img src="https://i.imgur.com/PzX0HSM.jpg" alt=""></p><p><em>( However, I might implement a version of it anyways… :) )</em></p><h6 id="Image-sources-in-order-of-appearance"><a class="anchor hidden-xs" href="#Image-sources-in-order-of-appearance" title="Image-sources-in-order-of-appearance"><span class="octicon octicon-link"></span></a>Image sources (in order of appearance):</h6><blockquote>
+<p>“Deep Sea Athletics” by Matthew Smith is licensed under CC BY-NC-ND 4.0<br>
+"2017/365/180 Start Learning about Stop Signs" by cogdogblog is licensed under CC0 1.0<br>
+"Illustrations &amp; Drawings" by Carolina Veliz is licensed under CC BY-NC 4.0<br>
+Neural Network: Creator:koto_feja, Credit:Getty Images/iStockphoto<br>
+Thankyou: Photo by <a href="http://rawpixel.com" target="_blank" rel="noopener">rawpixel.com</a> from Pexels<br>
+Dancing: Photo by Martin Lopez from Pexels</p>
+</blockquote></div>
     <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
         <div class="pull-right dropdown">
             <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
@@ -67,11 +96,12 @@ The idea would have been to take an image, identify its emotion and then using a
             </a>
             <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
                 <div class="toc"><ul class="nav">
-<li class=""><a href="#NeuroML---Joshua-Holla" title="NeuroML - Joshua Holla">NeuroML - Joshua Holla</a><ul class="nav">
-<li><a href="#Looking-at-the-data" title="Looking at the data">Looking at the data</a></li>
-<li><a href="#Troubleshooting" title="Troubleshooting:">Troubleshooting:</a></li>
+<li class=""><a href="#NeuroMLMusic-tryouts---Joshua-Holla" title="NeuroMLMusic tryouts - Joshua Holla">NeuroMLMusic tryouts - Joshua Holla</a><ul class="nav">
+<li class=""><a href="#Looking-at-the-data" title="Looking at the data">Looking at the data</a></li>
+<li><a href="#Figuring-out-what-I-want-to-do" title="Figuring out what I want to do:">Figuring out what I want to do:</a></li>
+<li><a href="#Results" title="Results:">Results:</a></li>
 <li class=""><a href="#Conclusions" title="Conclusions:">Conclusions:</a></li>
-<li class=""><a href="#Ideas-that-did-not-make-the-cut" title="Ideas that did not make the cut">Ideas that did not make the cut</a></li>
+<li class=""><a href="#Extra-Ideas-that-didn’t-make-the-cut" title="Extra: Ideas that didn’t make the cut">Extra: Ideas that didn’t make the cut</a></li>
 </ul>
 </li>
 </ul>
@@ -81,11 +111,12 @@ The idea would have been to take an image, identify its emotion and then using a
     </div>
     <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;" null null>
         <div class="toc"><ul class="nav">
-<li class=""><a href="#NeuroML---Joshua-Holla" title="NeuroML - Joshua Holla">NeuroML - Joshua Holla</a><ul class="nav">
-<li><a href="#Looking-at-the-data" title="Looking at the data">Looking at the data</a></li>
-<li class=""><a href="#Troubleshooting" title="Troubleshooting:">Troubleshooting:</a></li>
+<li class=""><a href="#NeuroMLMusic-tryouts---Joshua-Holla" title="NeuroMLMusic tryouts - Joshua Holla">NeuroMLMusic tryouts - Joshua Holla</a><ul class="nav">
+<li class=""><a href="#Looking-at-the-data" title="Looking at the data">Looking at the data</a></li>
+<li><a href="#Figuring-out-what-I-want-to-do" title="Figuring out what I want to do:">Figuring out what I want to do:</a></li>
+<li class=""><a href="#Results" title="Results:">Results:</a></li>
 <li class=""><a href="#Conclusions" title="Conclusions:">Conclusions:</a></li>
-<li class=""><a href="#Ideas-that-did-not-make-the-cut" title="Ideas that did not make the cut">Ideas that did not make the cut</a></li>
+<li class=""><a href="#Extra-Ideas-that-didn’t-make-the-cut" title="Extra: Ideas that didn’t make the cut">Extra: Ideas that didn’t make the cut</a></li>
 </ul>
 </li>
 </ul>

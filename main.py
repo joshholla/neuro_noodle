@@ -22,10 +22,9 @@ if __name__ == "__main__":
     # Where the command line magic happens.
     # ------------------------------------------------------------------------------
     parser = argparse.ArgumentParser()
-    parser.add_argument("--debug", action='store_true', default=False, help='to prevent logging (even to disk), when debugging.')
+    parser.add_argument("--debug", action='store_true', default=False, help='to kick off the interactive debugger.')
 
     parser.add_argument("--comet", action='store_true', default=False, help='to use https://www.comet.ml/joshholla for logging')
-    parser.add_argument("--use_logger",action='store_true',default=False,help='to log or not to log (that is the question)')
     parser.add_argument('--namestr',type=str,default='neuro_ml',help='additional info in output filename to describe experiments')
 
     parser.add_argument('--data_dir',type=str,default='Resources/stimuli/',help='path to data')
@@ -44,7 +43,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.debug:
-        args.use_logger = False
         ipdb.set_trace()
 
     # Configure Logging.

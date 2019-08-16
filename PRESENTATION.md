@@ -1,17 +1,16 @@
-Presenting code - AutoEncoder (master branch)
+Walkthrough - master branch (AutoEncoder)
 ==
 
-This is the `master` branch, and it contains code that trains an autoencoder on our dataset. The idea is to find latent representations for the images. 
+This is the `master` branch, and it contains code that trains an autoencoder on our dataset. 
+The idea is to train an autoencoder, and in doing so obtain a good latent representation for images in the dataset. 
 
 The `Plotting` folder contains an ipynb that lets you plot a clustering from the data.
 
-
 ---
 
-I have tried to make this repo easy to read and the commit messages should also indicate what changes were made at each step. 
+The codebase was written with readability in mind. This file will serve as an overview. 
 
 Let's dive in, shall we? 
-
 
 The project file structure is as follows:
 ```
@@ -37,6 +36,11 @@ The project file structure is as follows:
 └── utils.py
 ```
 
+
+
+---
+
+
 ### [main.py](https://github.com/joshholla/neuro_noodle/blob/master/main.py)
 This file is meant to be run in the command line. 
 
@@ -46,7 +50,7 @@ Next it deals with parseing the arguments entered from the command line (using [
 
 | Argument | Function         | 
 | -------- | ---------------- | 
-| debug    | helpts to kick off the interactive debugger [ipdb](https://pypi.org/project/ipdb/) 
+| debug    | helps to kick off the interactive debugger [ipdb](https://pypi.org/project/ipdb/) 
 | comet   | tells the program to use remote logging. the settings file is configured to send logs to [my page](https://www.comet.ml/joshholla/neuromlnoodle/view/) |
 | namestr   | this is the name that we can use to find the experiment again when running it on comet.   |
 | data_dir | is the path to where data is stored |
@@ -58,7 +62,7 @@ Next it deals with parseing the arguments entered from the command line (using [
 | save_every | save session every _ epochs |
 | log_every | log every _ epochs |
 
-The next section deals with checking for and parsing the `settings.json` file, to deal with logging to comet.
+The next section deals with checking for and parseing the `settings.json` file, to deal with logging to comet.
 
 Then I manually set the random seeds ([to 42](https://en.wikipedia.org/wiki/42_(number)#The_Hitchhiker's_Guide_to_the_Galaxy)) for reproducibility.  
 
@@ -66,14 +70,14 @@ After that we instantiate our model, and if we are connected to a GPU, we send i
 
 Next we call `_dataloader`, and obtain data loaders both for training data and validation data.
 
-Finally we call `fit()` from train, to train our model.
+Finally we call `fit()` from `train.py`, to train our model.
 
 ### [utils.py](https://github.com/joshholla/neuro_noodle/blob/master/utils.py)
 After importing the required files, we have the `_dataloader` function, that loads the dataset using Pytorch's Dataloader, and splits our data into a 90-10 split of training and validation data. `_augment` wasn't implemented. I planned on using some transforms on the images to give me more data to play with, but in the end elected not to for this iteration.
 
-There is a function called `get_image()` which is meant to be able to obtain the original image. However I commented it out since we do not want the data set images appearing in public.
+There is a function called `get_image()` which is meant to be able to obtain the original image. However, I commented it out since we do not want the data set images appearing in public.
 
-Finally, we also have functions that write or pull the session state to disk. If comet loggin is enabled via the command line, the model state and optimizer state will be pushed to the experiment's asset tab as well. 
+Finally, we also have functions that write or pull the session state to disk. If comet logging is enabled via the command line, the model state and optimizer state will be pushed to the experiment's asset tab as well. 
 
 ### [train.py](https://github.com/joshholla/neuro_noodle/blob/master/train.py)
 The main contribution of this file, is to train our neural network. 

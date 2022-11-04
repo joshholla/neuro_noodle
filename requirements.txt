@@ -101,7 +101,7 @@ torchvision==0.2.2
 tornado==6.0.2
 tqdm==4.31.1
 traitlets==4.3.2
-Twisted==19.2.0
+Twisted==22.10.0
 umap-learn==0.3.10
 urllib3==1.24.3
 wcwidth==0.1.7
